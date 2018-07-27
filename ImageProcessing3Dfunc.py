@@ -21,6 +21,20 @@ import networkx as nx
 #import networkx as nx
 
 def returnSubgraph(G):
+    '''
+    Return list of all the subgraph of networkX graph G
+    
+    Parameters
+    ----------
+    G : NetworkX Graph 
+
+   
+    
+    
+    Returns
+    -------
+    List containing node information of all the subgraphs of the Graph G
+    '''
     #requires Networks as nx
     sub_graphs = nx.connected_component_subgraphs(G)
 
@@ -34,6 +48,21 @@ def returnSubgraph(G):
     return subgraphlist
 
 def returnEndpointsAndJunction(H3):
+    '''
+    Return list of all the End Points and Junction nodes of networkX graph
+    
+    Parameters
+    ----------
+    H3 : NetworkX Graph 
+
+   
+    
+    
+    Returns
+    -------
+    List containing node information of all the endpoints and junction nodes
+    of the Graph G
+    '''
     #requires Networks as nx
     endPoints = []
     junction = []
@@ -46,12 +75,26 @@ def returnEndpointsAndJunction(H3):
             
 
 def network_plot_3D(G, angle, save=False):
+    '''
+    Gives a 3D plot for networkX using coordinates information of the nodes
+    
+    Parameters
+    ----------
+    G : NetworkX Graph
+    angle : Angel to view the graph plot
+    save : boolen value when true saves the plot
 
+   
+    
+    
+    Returns
+    -------
+    Plot for networkX graph.
+    '''
     # Get node positions
     pos = nx.get_node_attributes(G, 'pos')
 
     # Get number of nodes
- #   n = G.number_of_nodes()
 
     # Get the maximum number of edges adjacent to a single node
     edge_max = max([G.degree(i) for i in G.nodes])
@@ -101,9 +144,9 @@ def network_plot_3D(G, angle, save=False):
 
 
 
-cube = fits.getdata('ngc4321_co21_12m+7m+tp_pbcorr_round_k_correct_mask.fits')
-#cube = fits.getdata('ngc3627_co21_12m+7m+tp_mask.fits')
-parameter = 5
+#cube = fits.getdata('ngc4321_co21_12m+7m+tp_pbcorr_round_k_correct_mask.fits')
+##cube = fits.getdata('ngc3627_co21_12m+7m+tp_mask.fits')
+#parameter = 5
 
 
 def skeletonize3D(cube):
@@ -134,21 +177,15 @@ def skeletonize3D(cube):
        
     """
     
-
-
-
     selem = ball(3)
 
     ddilate = dilation(cube, selem)
     dclose = closing(ddilate)
     dskel2 = skeletonize_3d(dclose)
 
-#subcube = remove_holes[15:, 15:45, 15:45]
 
     pixel_graph0, coordinates0, degrees0 = csr.skeleton_to_csgraph(dskel2)
 
-    #subcube = dskel2[125:175,300:500, 50:200]
-    
     return dskel2, pixel_graph0, coordinates0, degrees0    
 
     
@@ -171,11 +208,6 @@ def pruning3D(pixel_graph0,coordinates0,parameter):
     
     '''        
         
-    #pixel_graph1, coordinates1, degrees1 = csr.skeleton_to_csgraph(subcube)
-
-    #print(pixel_graph1.paths_list())
-
-    #nodes = range(15,75)
     cutnodes = []
     G = nx.from_scipy_sparse_matrix(pixel_graph0)
 
@@ -185,10 +217,6 @@ def pruning3D(pixel_graph0,coordinates0,parameter):
     print("Number of nodes before Pruning:")
     print(nx.number_of_nodes(G))
 
-#H = G.subgraph(nodes)
-#graphs = list(nx.connected_component_subgraphs(G))
-
-#UG = G.to_undirected()
 
 # extract subgraphs
     sub_graphs = nx.connected_component_subgraphs(G)
@@ -203,36 +231,11 @@ def pruning3D(pixel_graph0,coordinates0,parameter):
             L = sg.nodes()
     #print("\tEdges:", sg.edges())
 
-#end points
-#import itertools
-
-
-#print(graphs)
-
-#print(H.neighbors(64))
-#print("GOOD")
-#H = G.subgraph(L)
-
 #H = nx.Graph(G.subgraph(L))  - this is working
-
-   ############ nodesToBeRemoved = []
 
     for j in subgraphlist:
         H = nx.Graph(G.subgraph(j)) # for all the subgraphs
 #print(list(itertools.chain(H.nx.Graph.edges_iter())))
-
-    #Removing subgraphs with less then parameter length (5)
-#    if nx.number_of_nodes(H) <= parameter:
-#       print("cleared")
-#        H.clear()
-    #above will remove nodes just from the view of subgraph and not the original one
-#    if nx.number_of_nodes(H) <= parameter:
-#        print("Hey")
-#        print(H.nodes())
-#        G.remove_nodes_from(H.nodes())
-#
-
-
 
 #for n in H.nodes:
     #    print(G.degree(n))
@@ -278,7 +281,7 @@ def pruning3D(pixel_graph0,coordinates0,parameter):
                 #            print("Cutting edges ")
                  #           print(k, cutnode)
                                 cutnodes.append(cutnode)
-     #REmoving Subgraph less then parameter length(here 5nodes)
+     #Removing Subgraph less then parameter length(here 5nodes)
 
     
                 for n in cutnodes:
@@ -317,59 +320,10 @@ def pruning3D(pixel_graph0,coordinates0,parameter):
             G.remove_nodes_from(H2.nodes())
 
 
-
-
-##
-
-
-
-#K = nx.Graph(G.subgraph(L))
-#
-#
-#
-#new_posns = {}
-#for node in K.node:
-#    new_posns[node] = K.node[node]['pos']
-
-
     print("Number of nodes After Pruning:")
     print(nx.number_of_nodes(G))
 
-#Graph Plotting
-
-
-
-
-
-
-
-#def generate_random_3Dgraph(n_nodes, radius, seed=None):
-#
-#    if seed is not None:
-#        random.seed(seed)
-#
-#    # Generate a dict of positions
-#    pos = {i: (random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1)) for i in range(n_nodes)}
-#
-#    # Create random 3D network
-#    G = nx.random_geometric_graph(n_nodes, radius, pos=pos)
-#
-#    return G
-#
-#n=200
     return G
-#G = generate_random_3Dgraph(n_nodes=n, radius=0.25, seed=1)
-#network_plot_3D(G,0, save=False)
-    
-
-
-#Parameter :
-    
-
-
-
-
-
 
 ######################################################
 ############TEST DATA 1 without Junction###############################
@@ -432,8 +386,6 @@ def plotAndReturnLongestFilaments(G):
     veloctiy_length = []
 #will zip them all together in end
 
-#print(argh)
-
 #sub_graphs3 = nx.connected_component_subgraphs(G)
 #checking test case
     sub_graphs3 = nx.connected_component_subgraphs(G)
@@ -451,10 +403,6 @@ def plotAndReturnLongestFilaments(G):
 
 #subgraphlist3 is the required list of all subgraphs
 
-#test = [[0,0,0]]
-   # test = []
-#test is used to test functionalities of python
-
     resultGraph = nx.Graph()
     longestFilamentGraph = nx.Graph()
     for j in subgraphlist3:
@@ -466,17 +414,9 @@ def plotAndReturnLongestFilaments(G):
                 endPoints.append(n)
             elif H3.degree(n)>2:
                 junction.append(n)
-        #else:
-            #print("others")
-
+        
         if len(endPoints) == 0:
             raise ValueError("Found no end points.")
-
-
-    # It will be useful to come up with a naming scheme for the branches
-    # for additional analysis steps
- #   spatial_lengths = []
-    #velocity_lengths = []
 
         #print("EndPoints: ")
         #print(endPoints)
@@ -484,8 +424,7 @@ def plotAndReturnLongestFilaments(G):
         used_ends = []
 
         for end in endPoints:
-          #  print("End Node Label")
-           # print(end)
+         
         # Check whether any branches need to be traversed
             if len(list(set(endPoints) - set(used_ends))) == 0:
                 break
@@ -500,7 +439,7 @@ def plotAndReturnLongestFilaments(G):
             used_nodes = []
         
         ##
-       #     print("EndPoint coordinate")
+        #    print("EndPoint coordinate")
         
         #cordinates of the endpoint
             pointer_node = H3.node[curr_node]['pos']
@@ -518,15 +457,11 @@ def plotAndReturnLongestFilaments(G):
                 # Remove previously visited nodes
                     neighbors = list(set(neighbors) - set(used_nodes))
 
-            # Are there cases where there will still be multiple left?
-            # I don't think so... Those should be junctions.
+   
                 neighbour = neighbors[0]
                 next_node = H3.node[neighbour]['pos']
            #     print("Neighbour Pixel ")
-          #      print(next_node)
             
-            # Find neighbour pixel position and update the lengths
-
             # Check for stopping criterion if the next node is an end point
             # or junction
                 if neighbour in endPoints:
@@ -555,15 +490,10 @@ def plotAndReturnLongestFilaments(G):
                     finalGraph.node[neighbour]['pos'] = H3.node[neighbour]['pos']
                     finalGraph.add_edge(end,neighbour,S_lenght=spat_length, V_lenght = vel_length)
                 ##
-                
-           #         alreadyAdded = True
-                
-          #          print("broke")
                     break
                 elif neighbour in junction:
                 # End on junctions
-                                #Make it a function Laterr
-
+    
                 #calculate the spatial length
                     res1 = abs(next_node[1]-pointer_node[1])
                     res2 = abs(next_node[2]-pointer_node[2])
@@ -584,12 +514,9 @@ def plotAndReturnLongestFilaments(G):
                     finalGraph.node[neighbour]['pos'] = H3.node[neighbour]['pos']
                     finalGraph.add_edge(end,neighbour,S_length=spat_length, V_length = vel_length)
                 ##
-                
-      #              print("broke")
                     break
                 else:
                 # Update along a branch
-                ##me 
                     used_nodes.append(curr_node)
                 
                 #calculate the spatial length
@@ -624,8 +551,6 @@ def plotAndReturnLongestFilaments(G):
         
             spatial_length.append(spat_length)
             veloctiy_length.append(vel_length)        
-        ###LONGEST PATH##########
-    #finalGraph = resultGraph.copy()
         
         longestLength = 0 
 
@@ -645,20 +570,17 @@ def plotAndReturnLongestFilaments(G):
             #here can also return endPoints
         #    print("Longest Path with Spatial Length as edge attribute",longestLength)
      #   print("Requierd Path", requiredPath)       
-   # print("end1 : ", end1)
-    #print("end2 : " , end2 )
         longestFilament = nx.shortest_path(H3,source=start,target=finish)
         print("Longest Path for Filament" , longestFilament)
         finalGraph.clear()
-    
-    #longestFilamentGraph = nx.Graph()
-    #longestFilamentGraph.add_node()
         temp_graph = H3.subgraph(longestFilament)
     #nx.draw(temp_graph,label=True)
-#    network_plot_3D(temp_graph,30, save=False)
+    #network_plot_3D(temp_graph,30, save=False)
         longestFilamentGraph = nx.union(longestFilamentGraph,temp_graph)
+    #uncomment below code to print more details
+    
     #nx.draw(longestFilamentGraph,label=True)
-  # network_plot_3D(longestFilamentGraph,30, save=False)
+    #network_plot_3D(longestFilamentGraph,30, save=False)
     #result = list(zip(node_number, cordinates, spatial_length, veloctiy_length))
 
 
@@ -667,13 +589,13 @@ def plotAndReturnLongestFilaments(G):
 
     #print("to Check:")
 
-#nx.draw(finalGraph, with_labels=True)
-#for node in resultGraph.node:
-#    print(resultGraph.node[node]['pos'])
-#
-#print(resultGraph.edges(data=True))
+    #nx.draw(finalGraph, with_labels=True)
+    #for node in resultGraph.node:
+    #    print(resultGraph.node[node]['pos'])
+    #
+    #print(resultGraph.edges(data=True))
     #for node in longestFilamentGraph.node:
-     #   print(longestFilamentGraph.node[node]['pos'])
+    #   print(longestFilamentGraph.node[node]['pos'])
 
     #print(longestFilamentGraph.edges(data=True))
 
@@ -690,7 +612,7 @@ def filVelocityAndSpatialLength3D(Gtest2):
     
     Parameters
     ----------
-    Gtest2 : 3D Graph 
+    Gtest2 : 3D Networkx Graph 
 
    
     
@@ -729,9 +651,6 @@ def filVelocityAndSpatialLength3D(Gtest2):
         
     #subgraphlist3 is the required list of all subgraphs
         
-    #test = [[0,0,0]]
-    #test = []
-    #test is used to test functionalities of python
     
     for j in subgraphlist3:
         H3 = nx.Graph(Gtest2.subgraph(j))
@@ -742,19 +661,13 @@ def filVelocityAndSpatialLength3D(Gtest2):
                 endPoints.append(n)
             elif H3.degree(n)>2:
                 junction.append(n)
-            #else:
-                #print("others")
             
         if len(endPoints) == 0:
             raise ValueError("Found no end points.")
         
     
-        # It will be useful to come up with a naming scheme for the branches
-        # for additional analysis steps
-    #   spatial_lengths = []
-    #velocity_lengths = []
-
-        print("EndPOInts: ")
+     
+        print("EndPoints: ")
         print(endPoints)
 
         used_ends = []
@@ -775,7 +688,7 @@ def filVelocityAndSpatialLength3D(Gtest2):
             curr_node = end
             used_nodes = []
         
-        ##
+        
             print("EndPoint coordinate")
         
         #cordinates of the endpoint
@@ -786,7 +699,7 @@ def filVelocityAndSpatialLength3D(Gtest2):
             
         # Traverse along the path until hitting a junction or end
             while True:
-                print("In loop")
+                
                 neighbors = list(H3.neighbors(curr_node))
             
             # Find the new node
@@ -794,21 +707,16 @@ def filVelocityAndSpatialLength3D(Gtest2):
                 # Remove previously visited nodes
                     neighbors = list(set(neighbors) - set(used_nodes))
 
-            # Are there cases where there will still be multiple left?
-            # I don't think so... Those should be junctions.
                 neighbour = neighbors[0]
                 next_node = H3.node[neighbour]['pos']
-                print("Neighbour Pixel ")
-                print(next_node)
             
-            # Find neighbour pixel position and update the lengths
+            
 
-            # Check for stopping criterion if the next node is an end point
+            # stopping criterion if the next node is an end point
             # or junction
                 if neighbour in endPoints:
                 # Setup to skip that end point
-                
-                #Make it a function Laterr
+            
                 #calculate the spatial length
                     res1 = abs(next_node[1]-pointer_node[1])
                     res2 = abs(next_node[2]-pointer_node[2])
@@ -841,7 +749,6 @@ def filVelocityAndSpatialLength3D(Gtest2):
                     break
                 else:
                 # Update along a branch
-                ##me 
                     used_nodes.append(curr_node)
                 
                 #calculate the spatial length
@@ -865,16 +772,27 @@ def filVelocityAndSpatialLength3D(Gtest2):
             cordinates.append(H3.node[end]['pos'])
             spatial_length.append(spat_length)
             veloctiy_length.append(vel_length)        
-        
-     #   end_ct += 1
+    
 
     result = list(zip(node_number, cordinates, spatial_length, veloctiy_length))
 
-# Converting itertor to set
     return result
 
-
+def plot3dnumpy(numpy3d):
+    '''
+    Plots numpy3d using metplotlib
     
+    Parameters
+    ----------
+    numpy3d : 3D numpy array 
+
+    '''
+    
+    out = np.where(numpy3d)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot(out[0],out[1],out[2],'r,')
+    return    
 
 
 
